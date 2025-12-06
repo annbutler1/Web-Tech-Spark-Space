@@ -19,6 +19,8 @@ SparkSpace helps artists overcome creative block by generating random sketch pro
   Example: Muted terracotta, ocean blue, linen white.
 
 
+## Notes from first meeting
+- use continuous flow, press launch goes to prompt, then add a continue button that moves to colors, then continue button goes to reference image. 
 ---
 
 ## Pages  
