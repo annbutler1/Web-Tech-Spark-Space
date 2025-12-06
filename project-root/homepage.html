@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SparkSpace</title>
+    <link rel="icon" type="image/png" href="images/rocket.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="stars" id="starsContainer"></div>
+    <div class="rocket">🚀</div>
+
+    <nav>
+      <a href="homepage.html" class="logo">
+        <span>🚀SparkSpace</span>
+      </a>
+      <ul>
+        <li><a href="prompt.html">Prompt</a></li>
+        <li><a href="reference.html">Reference</a></li>
+        <li><a href="palette.html">Palette</a></li>
+      </ul>
+    </nav>
+
+    <div class="container">
+      <h1>SparkSpace</h1>
+      <p class="introduction">
+        Every artist knows the struggle of creative block. SparkSpace is here to
+        help you overcome it with random prompts, reference images, and color
+        palettes. To use SparkSpace, click on the launch button below to get
+        started on your creative journey.
+      </p>
+
+      <div class="button-grid">
+        <a href="prompt.html" class="button">
+          <span>Launch</span>
+        </a>
+      </div>
+    </div>
+
+    <script>
+      function generateStars() {
+        const starsContainer = document.getElementById("starsContainer");
+        // how many stars based on wdith of browser window
+        const starCount = Math.floor(window.innerWidth / 20);
+        for (let i = 0; i < starCount; i++) {
+          const star = document.createElement("div");
+          star.className = "star";
+          // random size and position for each star
+          star.style.width = Math.random() * 3 + "px";
+          star.style.height = star.style.width;
+          star.style.left = Math.random() * 100 + "%";
+          star.style.top = Math.random() * 100 + "%";
+          star.style.animationDelay = Math.random() * 3 + "s";
+          starsContainer.appendChild(star);
+        }
+      }
+
+      generateStars();
+      window.addEventListener("resize", () => {
+        document.getElementById("starsContainer").innerHTML = "";
+        generateStars();
+      });
+    </script>
+  </body>
+</html>

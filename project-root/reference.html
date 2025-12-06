@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reference Generator</title>
+    <link rel="icon" type="image/png" href="images/rocket.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="stars" id="starsContainer"></div>
+
+    <nav>
+      <a href="homepage.html" class="logo">
+        <span>🚀SparkSpace</span>
+      </a>
+      <ul>
+        <li><a href="prompt.html">Prompt</a></li>
+        <li><a href="reference.html">Reference</a></li>
+        <li><a href="palette.html">Palette</a></li>
+      </ul>
+    </nav>
+
+    <div class="container prompt-container">
+      <div class="display" id="referenceDisplay">
+        Click on the button below to begin!
+      </div>
+      <div class="actions">
+        <button class="prompt-btn" id="newImageBtn">Give Me an Image</button>
+      </div>
+      <div class="button">
+        <a href="palette.html" class="prompt-btn">
+          <span>Next Stop!</span>
+        </a>
+      </div>
+      <div class="feedback" id="referenceFeedback"></div>
+
+      <script>
+        function generateStars() {
+          const starsContainer = document.getElementById("starsContainer");
+          // how many stars based on wdith of browser window
+          const starCount = Math.floor(window.innerWidth / 20);
+          for (let i = 0; i < starCount; i++) {
+            const star = document.createElement("div");
+            star.className = "star";
+            // random size and position for each star
+            star.style.width = Math.random() * 3 + "px";
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + "%";
+            star.style.top = Math.random() * 100 + "%";
+            star.style.animationDelay = Math.random() * 3 + "s";
+            starsContainer.appendChild(star);
+          }
+        }
+        generateStars();
+        window.addEventListener("resize", () => {
+          const c = document.getElementById("starsContainer");
+          if (c) c.innerHTML = "";
+          generateStars();
+        });
+
+        const display = document.getElementById("referenceDisplay");
+        const feedback = document.getElementById("referenceFeedback");
+        const newBtn = document.getElementById("newImageBtn");
+
+        function setLoading(isLoading) {
+          newBtn.disabled = isLoading;
+          feedback.textContent = isLoading ? "Loading image..." : "";
+          if (isLoading) {
+            display.textContent = "Loading...";
+          }
+        }
+        window.UNSPLASH_CLIENT_ID = "your_actual_unsplash_client_id_here"; // replace this part with the access code would make it work
+        // API to fetch random image from Unsplash
+        async function loadRandomImage() {
+          setLoading(true);
+          try {
+            // Assume UNSPLASH_CLIENT_ID is injected at build/runtime (e.g., via a bundler or server template)
+            const clientId = window.UNSPLASH_CLIENT_ID || "YOUR_CLIENT_ID_HERE";
+            const apiUrl = `https://api.unsplash.com/photos/random?client_id=${clientId}`;
+            console.log("Fetching from:", apiUrl);
+            const res = await fetch(apiUrl);
+            if (!res.ok) throw new Error("API error");
+            const data = await res.json();
+            const img = new Image();
+            img.src = data.urls && data.urls.regular ? data.urls.regular : data.urls.full;
+            img.alt = data.alt_description || "Random reference";
+            img.style.maxWidth = "100%";
+            img.style.borderRadius = "8px";
+            await img.decode();
+            display.innerHTML = "";
+            display.appendChild(img);
+            feedback.textContent = "";
+          } catch (err) {
+            display.innerHTML = '<div style="padding: 40px; text-align: center; color: #999;">Failed to load image.</div>';
+            feedback.textContent = "Could not fetch image.";
+          } finally {
+            setLoading(false);
+          }
+        }
+        newBtn.addEventListener("click", loadRandomImage);
+      </script>
+    </div>
+  </body>
+</html>

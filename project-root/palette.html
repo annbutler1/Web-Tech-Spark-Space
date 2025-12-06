@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Palette Generator</title>
+    <link rel="icon" type="image/png" href="images/rocket.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="stars" id="starsContainer"></div>
+
+    <nav>
+      <a href="homepage.html" class="logo">
+        <span>🚀SparkSpace</span>
+      </a>
+      <ul>
+        <li><a href="prompt.html">Prompt</a></li>
+        <li><a href="reference.html">Reference</a></li>
+        <li><a href="palette.html">Palette</a></li>
+      </ul>
+    </nav>
+
+    <div class="container prompt-container">
+      <div class="display" id="paletteDisplay">
+        <div id="paletteColors">Click on the button below to begin!</div>
+      </div>
+      <div class="actions">
+        <label for="colorCount"># of Colors:</label>
+        <select class="prompt-btn-copy" id="colorCount">
+          <option value="1">1 Color</option>
+          <option value="2">2 Colors</option>
+          <option value="3">3 Colors</option>
+          <option value="4">4 Colors</option>
+          <option value="5">5 Colors</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button class="prompt-btn" id="newPaletteBtn">
+          Give Me a Color Palette
+        </button>
+      </div>
+      <div class="button">
+        <a href="homepage.html" class="prompt-btn">
+          <span>Back to Home!</span>
+        </a>
+      </div>
+      <div class="feedback" id="paletteFeedback"></div>
+    </div>
+
+    <script>
+      function generateStars() {
+        const starsContainer = document.getElementById("starsContainer");
+        // how many stars based on wdith of browser window
+        const starCount = Math.floor(window.innerWidth / 20);
+        for (let i = 0; i < starCount; i++) {
+          const star = document.createElement("div");
+          star.className = "star";
+          // random size and position for each star
+          star.style.width = Math.random() * 3 + "px";
+          star.style.height = star.style.width;
+          star.style.left = Math.random() * 100 + "%";
+          star.style.top = Math.random() * 100 + "%";
+          star.style.animationDelay = Math.random() * 3 + "s";
+          starsContainer.appendChild(star);
+        }
+      }
+      generateStars();
+      window.addEventListener("resize", () => {
+        const c = document.getElementById("starsContainer");
+        if (c) c.innerHTML = "";
+        generateStars();
+      });
+
+      const display = document.getElementById("paletteDisplay");
+      const feedback = document.getElementById("paletteFeedback");
+      const newBtn = document.getElementById("newPaletteBtn");
+      const colorsContainer = document.getElementById("paletteColors");
+
+      const fallbackPalettes = [
+        ["#FF6B35", "#004E89", "#1A659E", "#FFFFFF", "#D9D9D9"],
+        ["#F77F00", "#FCBF49", "#EAE2B7", "#7F5539", "#9C6644"],
+        ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"],
+        ["#D62828", "#F77F00", "#FCBF49", "#EAE2B7", "#003049"],
+      ];
+
+      function setLoading(isLoading) {
+        newBtn.disabled = isLoading;
+        feedback.textContent = isLoading ? "Loading palette..." : "";
+        if (isLoading) {
+          colorsContainer.textContent = "Loading...";
+        }
+      }
+
+      function displayPalette(colors) {
+        colorsContainer.innerHTML = "";
+        colors.forEach((color) => {
+          const colorBox = document.createElement("div");
+          colorBox.style.display = "flex";
+          colorBox.style.alignItems = "center";
+          colorBox.style.justifyContent = "center";
+          colorBox.style.width = "100%";
+          colorBox.style.padding = "12px";
+          colorBox.style.margin = "8px 0";
+          colorBox.style.backgroundColor = color;
+          colorBox.style.borderRadius = "8px";
+          colorBox.style.cursor = "pointer";
+          colorBox.style.transition = "transform 0.2s";
+          colorBox.style.fontWeight = "bold";
+          colorBox.style.fontSize = "14px";
+
+          const hex = color.replace("#", "");
+          const r = parseInt(hex.substr(0, 2), 16);
+          const g = parseInt(hex.substr(2, 2), 16);
+          const b = parseInt(hex.substr(4, 2), 16);
+          const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          colorBox.style.color = luminance > 0.5 ? "#000" : "#fff";
+          colorBox.textContent = color.toUpperCase();
+
+          colorBox.addEventListener("mouseover", () => {
+            colorBox.style.transform = "scale(1.02)";
+          });
+          colorBox.addEventListener("mouseout", () => {
+            colorBox.style.transform = "scale(1)";
+          });
+          colorBox.addEventListener("click", () => {
+            navigator.clipboard.writeText(color);
+            feedback.textContent = "Copied: " + color;
+          });
+
+          colorsContainer.appendChild(colorBox);
+        });
+      }
+
+      // API to fetch color palette 
+      async function loadPalette() {
+        setLoading(true);
+
+        const colorCount = parseInt(
+          document.getElementById("colorCount").value
+        );
+
+        const requestBody = { model: "default" };
+
+        try {
+          const response = await fetch("http://colormind.io/api/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestBody),
+          });
+
+          if (!response.ok) throw new Error("API failed");
+
+          const data = await response.json();
+
+          let palette = data.result.map((rgb) => {
+            const hex = "#" + rgb.map((x) => {
+                  const h = x.toString(16);
+                  return h.length === 1 ? "0" + h : h;
+                })
+                .join("")
+                .toUpperCase();
+            return hex;
+          });
+
+          palette = palette.slice(0, colorCount);
+
+          displayPalette(palette);
+          feedback.textContent = "";
+        } catch (err) {
+          let palette =
+            fallbackPalettes[
+              Math.floor(Math.random() * fallbackPalettes.length)
+            ];
+          palette = palette.slice(0, colorCount);
+          displayPalette(palette);
+          feedback.textContent = "Using local palette";
+        } finally {
+          setLoading(false);
+        }
+      }
+      newBtn.addEventListener("click", () => {
+        loadPalette();
+      });
+    </script>
+  </body>
+</html>
