@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Generator</title>
+    <link rel="icon" type="image/png" href="images/rocket.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="stars" id="starsContainer"></div>
+
+    <nav>
+      <a href="homepage.html" class="logo">
+        <span>🚀SparkSpace</span>
+      </a>
+      <ul>
+        <li><a href="prompt.html">Prompt</a></li>
+        <li><a href="reference.html">Reference</a></li>
+        <li><a href="palette.html">Palette</a></li>
+      </ul>
+    </nav>
+    <div class="container prompt-container">
+      <div class="display" id="PromptDisplay">
+        Click on the button below to begin!
+      </div>
+      <div class="actions">
+        <button class="prompt-btn" id="newPromptBtn">Give Me a Prompt</button>
+        <button
+          class="prompt-btn prompt-btn-copy"
+          id="copyPromptBtn"
+          title="Copy to clipboard"
+        >
+          Copy
+        </button>
+      </div>
+      <div class="button">
+        <a href="reference.html" class="prompt-btn">
+          <span>Next Stop!</span>
+        </a>
+      </div>
+      <div class="feedback" id="PromptFeedback"></div>
+    </div>
+
+    <script>
+      function generateStars() {
+        const starsContainer = document.getElementById("starsContainer");
+        // how many stars based on wdith of browser window
+        const starCount = Math.floor(window.innerWidth / 20);
+        for (let i = 0; i < starCount; i++) {
+          const star = document.createElement("div");
+          star.className = "star";
+          // random size and position for each star
+          star.style.width = Math.random() * 3 + "px";
+          star.style.height = star.style.width;
+          star.style.left = Math.random() * 100 + "%";
+          star.style.top = Math.random() * 100 + "%";
+          star.style.animationDelay = Math.random() * 3 + "s";
+          starsContainer.appendChild(star);
+        }
+      }
+      generateStars();
+      window.addEventListener("resize", () => {
+        const c = document.getElementById("starsContainer");
+        if (c) c.innerHTML = "";
+        generateStars();
+      });
+
+      const objects = [
+        "Bicycle",
+        "Umbrella",
+        "Candle",
+        "Camera",
+        "Glasses",
+        "Book",
+        "Chair",
+        "Clock",
+        "Guitar",
+        "Shoe",
+        "Apple",
+        "Hat",
+        "Lamp",
+        "Plant",
+        "Watch",
+        "Backpack",
+        "Headphones",
+        "Mug",
+        "Wallet",
+        "Key",
+        "Phone",
+        "Table",
+        "Pen",
+        "Notebook"
+      ];
+
+      const display = document.getElementById("PromptDisplay");
+      const feedback = document.getElementById("PromptFeedback");
+      const newBtn = document.getElementById("newPromptBtn");
+      const copyBtn = document.getElementById("copyPromptBtn");
+
+      function showRandomObject() {
+        const random = objects[Math.floor(Math.random() * objects.length)];
+        display.textContent = random;
+      }
+
+      newBtn.addEventListener("click", showRandomObject);
+
+      copyBtn.addEventListener("click", () => {
+        const text = display.textContent;
+        if (!text || text === "Click on the button below to begin!") return;
+
+        navigator.clipboard.writeText(text).then(() => {
+          feedback.textContent = "Copied!";
+          setTimeout(() => (feedback.textContent = ""), 1200);
+        });
+      });
+    </script>
+  </body>
+</html>
